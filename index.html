@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WT Lab Programs</title>
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --primary-hover: #1d4ed8;
+        --bg-color: #f1f5f9;
+        --card-bg: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --code-bg: #1e293b;
+        --code-text: #e2e8f0;
+        --border-color: #e2e8f0;
+        --sidebar-width: 280px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        display: flex;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Sidebar Navigation */
+      .sidebar {
+        width: var(--sidebar-width);
+        background-color: var(--card-bg);
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        border-right: 1px solid var(--border-color);
+        padding: 2rem 1.5rem;
+        overflow-y: auto;
+        z-index: 100;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar h2 {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--bg-color);
+      }
+
+      .nav-list {
+        list-style: none;
+      }
+
+      .nav-list li {
+        margin-bottom: 0.5rem;
+      }
+
+      .nav-list a {
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        display: block;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+
+      .nav-list a:hover {
+        background-color: var(--bg-color);
+        color: var(--primary-color);
+      }
+
+      /* Mobile Menu Toggle */
+      .menu-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 101;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 3rem;
+        width: calc(100% - var(--sidebar-width));
+        max-width: 1200px; /* Increased from 1000px for a wider code view */
+      }
+
+      .page-header {
+        margin-bottom: 3rem;
+      }
+
+      .page-header h1 {
+        font-size: 2.5rem;
+        color: var(--text-main);
+      }
+
+      .page-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+      }
+
+      /* Program Cards */
+      .program-card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 2.5rem; /* Slightly increased padding for the wider card */
+        margin-bottom: 3rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+      }
+
+      .program-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .program-title {
+        font-size: 1.5rem;
+        color: var(--text-main);
+      }
+
+      .btn-run {
+        background-color: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-run:hover {
+        background-color: var(--primary-hover);
+      }
+
+      /* Code Block */
+      .code-wrapper {
+        position: relative;
+        background-color: var(--code-bg);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn-copy {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--code-text);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        z-index: 10;
+      }
+
+      .btn-copy:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      pre {
+        padding: 1.5rem;
+        padding-top: 2.5rem; /* Extra top padding so copy button doesn't overlap code */
+        overflow-x: auto;
+        margin: 0;
+        border-radius: 8px;
+      }
+
+      /* Custom Scrollbar for Code Blocks */
+      pre::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+      }
+
+      pre::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+
+      pre::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+      }
+
+      pre::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      code {
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        color: var(--code-text);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 900px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.active {
+          transform: translateX(0);
+          box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .main-content {
+          margin-left: 0;
+          width: 100%;
+          padding: 1.5rem;
+          padding-top: 4rem; /* space for hamburger */
+        }
+        .menu-toggle {
+          display: block;
+        }
+        .program-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .program-card {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+      <h2>Lab Programs</h2>
+      <ul class="nav-list">
+        <li><a href="#prog-1" onclick="closeMenu()">1. Book Store</a></li>
+        <li><a href="#prog-2" onclick="closeMenu()">2. Login Validation</a></li>
+        <li>
+          <a href="#prog-3" onclick="closeMenu()">3. Arithmetic Operation</a>
+        </li>
+        <li>
+          <a href="#prog-4" onclick="closeMenu()">4. Basic HTML Elements</a>
+        </li>
+        <li><a href="#prog-5" onclick="closeMenu()">5. Time Table</a></li>
+        <li><a href="#prog-6" onclick="closeMenu()">6. Profile Page</a></li>
+        <li><a href="#prog-7" onclick="closeMenu()">7. External CSS</a></li>
+        <li>
+          <a href="#prog-8" onclick="closeMenu()">8. Multimedia Web Page</a>
+        </li>
+        <li>
+          <a href="#prog-9" onclick="closeMenu()">9. Leap Year Checker</a>
+        </li>
+        <li>
+          <a href="#prog-10" onclick="closeMenu()"
+            >10. Temperature Conversion</a
+          >
+        </li>
+        <!-- Add future links here -->
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="page-header">
+        <h1>WT Lab Programs</h1>
+        <p>A collection of HTML, CSS, JavaScript, and PHP lab programs.</p>
+      </header>
+
+      <!-- Program 1 -->
+      <section id="prog-1" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">1. Static Web Page for Book Store</h2>
+          <a
+            href="https://onecompiler.com/html/44f2vthq4"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Book Store&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Chandru's Book Store&lt;/h1&gt;
+    &lt;p&gt;Available Books&lt;/p&gt;
+    &lt;table border="1" cellpadding="8"&gt;
+      &lt;tr&gt;
+        &lt;td rowspan="4"&gt;
+          &lt;img src="image.jpg" width="120" /&gt;
+        &lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;Book Name:&lt;/b&gt; HTML Basics&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;b&gt;Author:&lt;/b&gt; John&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;b&gt;Price:&lt;/b&gt; ₹200&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;button&gt;Add to Cart&lt;/button&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td rowspan="4"&gt;
+          &lt;img src="image.jpg" width="120" /&gt;
+        &lt;/td&gt;
+        &lt;td&gt;&lt;b&gt;Book Name:&lt;/b&gt; Python Programming&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;b&gt;Author:&lt;/b&gt; David&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;b&gt;Price:&lt;/b&gt; ₹350&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;button&gt;Add to Cart&lt;/button&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 2 -->
+      <section id="prog-2" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">2. Login Validation using Javascript</h2>
+          <a
+            href="https://onecompiler.com/html/44f2vyup3"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;form&gt;
+      Username: &lt;input type="text" id="u" /&gt;&lt;br /&gt;&lt;br /&gt;
+      Password: &lt;input type="password" id="p" /&gt;&lt;br /&gt;&lt;br /&gt;
+      &lt;input type="submit" onclick="return check();" /&gt;
+    &lt;/form&gt;
+
+    &lt;script&gt;
+      function check() {
+        var u = document.getElementById("u").value;
+        var p = document.getElementById("p").value;
+
+        if (u == "") {
+          alert("Enter Username");
+          return false;
+        }
+        if (p.length &lt; 6) {
+          alert("Password must be 6 characters");
+          return false;
+        }
+        alert("Login Success");
+        return true;
+      }
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 3 -->
+      <section id="prog-3" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">
+            3. Arithmetic Operation using Javascript
+          </h2>
+          <a
+            href="https://onecompiler.com/html/44f2w54s4"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+      try {
+        var exp = prompt("Enter expression (ex: 5+3*2)");
+        var result = eval(exp);
+        document.write("Result = " + result);
+      } catch (e) {
+        document.write("Invalid Expression");
+      }
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 4 -->
+      <section id="prog-4" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">4. Basic HTML Elements</h2>
+          <a
+            href="https://onecompiler.com/html/44f2w7vqd"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Basic HTML&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Welcome&lt;/h1&gt;
+    &lt;img src="./2nd/image.jpg" width="200" /&gt;
+
+    &lt;h2&gt;I am Chandru&lt;/h2&gt;
+    &lt;p&gt;I am currently pursuing &lt;b&gt;BSc CS&lt;/b&gt; and I am from &lt;i&gt;Dindigul&lt;/i&gt;&lt;/p&gt;
+    &lt;hr /&gt;
+    
+    &lt;h3&gt;Skills&lt;/h3&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Fullstack&lt;/li&gt;
+      &lt;li&gt;Cybersecurity&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;h3&gt;My Goals&lt;/h3&gt;
+    &lt;ol&gt;
+      &lt;li&gt;Get a good job&lt;/li&gt;
+      &lt;li&gt;Start a startup&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;h3&gt;Table&lt;/h3&gt;
+    &lt;table border="1"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Age&lt;/th&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Chandru&lt;/td&gt;
+        &lt;td&gt;20&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+
+    &lt;h3&gt;Form&lt;/h3&gt;
+    &lt;form&gt;
+      Name: &lt;input type="text" /&gt;&lt;br /&gt;
+      &lt;input type="submit" /&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 5 -->
+      <section id="prog-5" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">5. Time Table</h2>
+          <a
+            href="https://onecompiler.com/html/44f2w9rpb"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Time Table&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Time Table&lt;/h1&gt;
+    &lt;table border="1"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Day Order&lt;/th&gt;
+        &lt;th&gt;1&lt;/th&gt;
+        &lt;th&gt;2&lt;/th&gt;
+        &lt;th&gt;3&lt;/th&gt;
+        &lt;th&gt;4&lt;/th&gt;
+        &lt;th&gt;5&lt;/th&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;I&lt;/td&gt;
+        &lt;td&gt;WT&lt;/td&gt;
+        &lt;td&gt;Pro&lt;/td&gt;
+        &lt;td&gt;WT(L)&lt;/td&gt;
+        &lt;td&gt;CC&lt;/td&gt;
+        &lt;td&gt;AI&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;II&lt;/td&gt;
+        &lt;td&gt;WT(L)&lt;/td&gt;
+        &lt;td&gt;Pro&lt;/td&gt;
+        &lt;td&gt;CGI&lt;/td&gt;
+        &lt;td&gt;DCN&lt;/td&gt;
+        &lt;td&gt;ELE&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;III&lt;/td&gt;
+        &lt;td&gt;CC&lt;/td&gt;
+        &lt;td&gt;Pro&lt;/td&gt;
+        &lt;td&gt;WT(L)&lt;/td&gt;
+        &lt;td&gt;WT&lt;/td&gt;
+        &lt;td&gt;CGI&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;IV&lt;/td&gt;
+        &lt;td&gt;WT&lt;/td&gt;
+        &lt;td&gt;Pro&lt;/td&gt;
+        &lt;td&gt;DCN&lt;/td&gt;
+        &lt;td&gt;ELE&lt;/td&gt;
+        &lt;td&gt;AI&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;V&lt;/td&gt;
+        &lt;td&gt;WT&lt;/td&gt;
+        &lt;td&gt;Pro&lt;/td&gt;
+        &lt;td&gt;AI&lt;/td&gt;
+        &lt;td&gt;DCN&lt;/td&gt;
+        &lt;td&gt;ELE&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;VI&lt;/td&gt;
+        &lt;td&gt;CC&lt;/td&gt;
+        &lt;td&gt;Pro&lt;/td&gt;
+        &lt;td&gt;WT&lt;/td&gt;
+        &lt;td&gt;ELE&lt;/td&gt;
+        &lt;td&gt;DCN&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 6 -->
+      <section id="prog-6" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">6. Profile Page</h2>
+          <a
+            href="https://onecompiler.com/html/44f2wb5sc"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Profile Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h2&gt;Profile Page&lt;/h2&gt;
+
+    &lt;form&gt;
+      Name: &lt;input type="text" /&gt;&lt;br /&gt;&lt;br /&gt;
+      Email: &lt;input type="email" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+      Gender:
+      &lt;input type="radio" name="g" /&gt; Male
+      &lt;input type="radio" name="g" /&gt; Female&lt;br /&gt;&lt;br /&gt;
+
+      Date of Birth: &lt;input type="date" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+      Upload Photo:
+      &lt;input type="file" onchange="showImage(event)" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+      &lt;img id="img" width="120" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+      Address:&lt;br /&gt;
+      &lt;textarea&gt;&lt;/textarea&gt;&lt;br /&gt;&lt;br /&gt;
+
+      &lt;input type="submit" value="Submit" /&gt;
+      &lt;input type="reset" value="Clear" /&gt;
+    &lt;/form&gt;
+
+    &lt;script&gt;
+      function showImage(event) {
+        var img = document.getElementById("img");
+        img.src = URL.createObjectURL(event.target.files[0]);
+      }
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 7 -->
+      <section id="prog-7" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">7. External CSS</h2>
+          <a
+            href="https://onecompiler.com/html/44f2wdcfj"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+
+        <h3 style="margin-bottom: 0.5rem; font-size: 1rem">style.css</h3>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>* {
+  color: green;
+}
+
+body {
+  background-color: lightblue;
+}
+
+h1 {
+  color: red;
+}
+
+form {
+  background-color: white;
+  padding: 20px;
+  display: inline-block;
+}</code></pre>
+        </div>
+
+        <h3 style="margin-bottom: 0.5rem; font-size: 1rem">index.html</h3>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;CSS&lt;/title&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;External CSS&lt;/h1&gt;
+    &lt;form&gt;
+        Email: &lt;input type="email"&gt;&lt;br&gt;&lt;br&gt;
+        Password: &lt;input type="password"&gt;&lt;br&gt;&lt;br&gt;
+        &lt;input type="submit"&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 8 -->
+      <section id="prog-8" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">8. Multimedia Web Page</h2>
+          <a
+            href="https://onecompiler.com/html/44f2wg9s3"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;img src="./2nd/image.jpg" width="300" /&gt;&lt;br /&gt;&lt;br /&gt;
+
+    &lt;video width="300" controls&gt;
+      &lt;source src="./2nd/video.mp4" /&gt;
+    &lt;/video&gt;&lt;br /&gt;&lt;br /&gt;
+
+    &lt;audio controls&gt;
+      &lt;source src="../2nd/audio.mp3" /&gt;
+    &lt;/audio&gt;&lt;br /&gt;&lt;br /&gt;
+
+    &lt;iframe
+      width="300"
+      src="https://www.youtube.com/embed/z5_klHXYZS4?list=RDz5_klHXYZS4"
+      allowfullscreen&gt;
+    &lt;/iframe&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 9 -->
+      <section id="prog-9" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">9. Leap Year Checker</h2>
+          <a
+            href="https://onecompiler.com/html/44f2wj77b"
+            target="_blank"
+            class="btn-run"
+            >▶ Run Program</a
+          >
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+      var year = prompt("Enter year");
+
+      if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+        document.write(year + " is a Leap Year");
+      } else {
+        document.write(year + " is not a Leap Year");
+      }
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Program 10 -->
+      <section id="prog-10" class="program-card">
+        <div class="program-header">
+          <h2 class="program-title">10. Temperature Conversion</h2>
+          <a href="#" target="_blank" class="btn-run">▶ Run Program</a>
+          <!-- Provide compiler link here when ready -->
+        </div>
+        <div class="code-wrapper">
+          <button class="btn-copy" onclick="copyCode(this)">Copy Code</button>
+          <pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;script&gt;
+      var c = prompt("Enter Celsius");
+      var f = (c * 9) / 5 + 32;
+      document.write("Fahrenheit = " + f);
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Template for future programs (Copy and paste to add PHP later) -->
+      <!-- 
+        <section id="prog-11" class="program-card">
+            ... 
+        </section> 
+        -->
+    </main>
+
+    <!-- JavaScript for Interactions -->
+    <script>
+      // Mobile menu toggling
+      function toggleMenu() {
+        document.getElementById("sidebar").classList.toggle("active");
+      }
+
+      // Close menu when a link is clicked on mobile
+      function closeMenu() {
+        if (window.innerWidth <= 900) {
+          document.getElementById("sidebar").classList.remove("active");
+        }
+      }
+
+      // Copy Code Functionality
+      function copyCode(btn) {
+        // Find the <pre><code> block next to the button
+        const codeElement = btn.parentElement.querySelector("code");
+        const codeText = codeElement.innerText;
+
+        // Use the robust older method for clipboard to avoid strict iframe limitations if tested locally
+        const textArea = document.createElement("textarea");
+        textArea.value = codeText;
+        document.body.appendChild(textArea);
+        textArea.select();
+
+        try {
+          document.execCommand("copy");
+          btn.innerText = "Copied!";
+          btn.style.backgroundColor = "#4ade80"; // Green color feedback
+          btn.style.color = "#000";
+
+          setTimeout(() => {
+            btn.innerText = "Copy Code";
+            btn.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+            btn.style.color = "var(--code-text)";
+          }, 2000);
+        } catch (err) {
+          console.error("Failed to copy", err);
+          btn.innerText = "Error";
+        }
+
+        document.body.removeChild(textArea);
+      }
+    </script>
+  </body>
+</html>
